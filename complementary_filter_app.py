@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 
 def generate_data(noise_level, gyro_drift, true_angle, dt=0.01, duration=10):
     time = np.arange(0, duration, dt)
@@ -30,7 +30,7 @@ st.title("Complementary Filter Demo for Quadcopter")
 st.sidebar.header("Filter Parameters")
 alpha = st.sidebar.slider("Alpha (Filter Weight)", 0.0, 1.0, 0.98, step=0.01)
 noise_level = st.sidebar.slider("Accelerometer Noise Level", 0.0, 2.0, 0.2, step=0.1)
-gyro_drift = st.sidebar.slider("Gyroscope Drift Level", 0.0, 10.0, 1.0, step=0.1)
+gyro_drift = st.sidebar.slider("Gyroscope Drift Level", 0.0, 0.1, 0.01, step=0.01)
 true_angle = st.sidebar.slider("True Angle Amplitude", 0.0, 90.0, 45.0, step=5.0)
 duration = st.sidebar.slider("Simulation Duration (s)", 5, 20, 10, step=1)
 
@@ -39,32 +39,26 @@ dt = 0.01  # Time step
 time, true_angles, accel_data, gyro_data = generate_data(noise_level, gyro_drift, true_angle, dt, duration)
 filtered_angles = complementary_filter(accel_data, gyro_data, alpha, dt)
 
+# Prepare data for plotting
+data = pd.DataFrame({
+    "Time (s)": time,
+    "True Angle (deg)": true_angles,
+    "Accelerometer Data (deg)": accel_data,
+    "Gyroscope Data (deg/s)": gyro_data,
+    "Filtered Angle (deg)": filtered_angles,
+})
+
 # Plotting
 st.header("Data Visualization")
-fig, ax = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
 
-# Raw accelerometer data
-ax[0].plot(time, accel_data, label="Accelerometer Data", color="blue", alpha=0.7)
-ax[0].plot(time, true_angles, label="True Angle", color="green", linestyle="--")
-ax[0].set_ylabel("Angle (deg)")
-ax[0].set_title("Accelerometer Data")
-ax[0].legend()
+st.subheader("True Angle vs Accelerometer Data")
+st.line_chart(data[["Time (s)", "True Angle (deg)", "Accelerometer Data (deg)"]].set_index("Time (s)"))
 
-# Raw gyroscope data
-ax[1].plot(time, gyro_data, label="Gyroscope Data (Rate)", color="orange", alpha=0.7)
-ax[1].set_ylabel("Rate (deg/s)")
-ax[1].set_title("Gyroscope Data")
-ax[1].legend()
+st.subheader("Gyroscope Data")
+st.line_chart(data[["Time (s)", "Gyroscope Data (deg/s)"]].set_index("Time (s)"))
 
-# Filtered data
-ax[2].plot(time, filtered_angles, label="Filtered Angle", color="red", alpha=0.7)
-ax[2].plot(time, true_angles, label="True Angle", color="green", linestyle="--")
-ax[2].set_ylabel("Angle (deg)")
-ax[2].set_title("Filtered Output")
-ax[2].set_xlabel("Time (s)")
-ax[2].legend()
-
-st.pyplot(fig)
+st.subheader("True Angle vs Filtered Angle")
+st.line_chart(data[["Time (s)", "True Angle (deg)", "Filtered Angle (deg)"]].set_index("Time (s)"))
 
 # Explanation
 st.subheader("What is a Complementary Filter?")

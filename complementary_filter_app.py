@@ -30,7 +30,7 @@ st.title("Complementary Filter Demo for Quadcopter")
 st.sidebar.header("Filter Parameters")
 alpha = st.sidebar.slider("Alpha (Filter Weight)", 0.0, 1.0, 0.98, step=0.01)
 noise_level = st.sidebar.slider("Accelerometer Noise Level", 0.0, 2.0, 0.2, step=0.1)
-gyro_drift = st.sidebar.slider("Gyroscope Drift Level", 0.0, 0.1, 0.01, step=0.01)
+gyro_drift = st.sidebar.slider("Gyroscope Drift Level", 0.0, 1.0, 2., step=0.1)
 true_angle = st.sidebar.slider("True Angle Amplitude", 0.0, 90.0, 45.0, step=5.0)
 duration = st.sidebar.slider("Simulation Duration (s)", 5, 20, 10, step=1)
 
